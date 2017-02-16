@@ -1,0 +1,17 @@
+FROM imrehg/armv7hf-python:3.4
+
+VOLUME /usr/src/target
+
+RUN apt-get update && \
+    apt-get install -yq --no-install-recommends \
+      libtiff5-dev \
+      libjpeg-dev \
+      zlib1g-dev \
+      libfreetype6-dev \
+      liblcms2-dev \
+      libwebp-dev \
+      tcl-dev \
+      tk-dev \
+      python3-tk
+
+ENTRYPOINT ["pip", "wheel", "-vvv", "--wheel-dir=/usr/src/target"]
