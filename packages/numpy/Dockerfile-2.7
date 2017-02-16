@@ -1,0 +1,11 @@
+FROM imrehg/armv7hf-python:2.7
+
+VOLUME /usr/src/target
+
+RUN apt-get update && \
+    apt-get install -yq --no-install-recommends \
+      libatlas-dev \
+      libblas-dev \
+      liblapack-dev
+
+ENTRYPOINT ["pip", "wheel", "-vvv", "--wheel-dir=/usr/src/target"]
