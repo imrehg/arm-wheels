@@ -1,0 +1,14 @@
+FROM imrehg/armv7hf-python:3.4
+
+VOLUME /usr/src/target
+
+RUN apt-get update && \
+    apt-get install -yq --no-install-recommends \
+      gfortran \
+      libatlas-dev \
+      libblas-dev \
+      liblapack-dev
+
+RUN pip install --extra-index-url=https://gergely.imreh.net/wheels/ numpy
+
+ENTRYPOINT ["pip", "wheel", "-vvv", "--wheel-dir=/usr/src/target"]
