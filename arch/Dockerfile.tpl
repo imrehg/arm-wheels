@@ -7,13 +7,6 @@ RUN apt-get purge -y python.*
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
 
-# install dbus-python dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		libdbus-1-dev \
-		libdbus-glib-1-dev \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& apt-get -y autoremove
-
 # key 63C7CC90: public key "Simon McVittie <smcv@pseudorandom.co.uk>" imported
 # key 3372DCFA: public key "Donald Stufft (dstufft) <donald@stufft.io>" imported
 RUN gpg --keyserver keyring.debian.org --recv-keys 4DE8FF2A63C7CC90 \
