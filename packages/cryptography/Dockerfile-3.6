@@ -6,4 +6,6 @@ RUN apt-get update && \
     apt-get install -yq --no-install-recommends \
       libssl-dev
 
-ENTRYPOINT ["pip", "wheel", "-vvv", "--wheel-dir=/usr/src/target"]
+COPY payload.sh ./
+
+ENTRYPOINT ["bash", "payload.sh"]
