@@ -1,7 +1,0 @@
-FROM imrehg/armv7hf-python:2.7
-
-VOLUME /usr/src/target
-
-COPY payload.sh ./
-
-ENTRYPOINT ["bash", "payload.sh"]

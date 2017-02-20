@@ -4,5 +4,7 @@ PKG=$1
 TARGET=/usr/src/target
 TMP=/tmp
 
-pip wheel -vvv --wheel-dir ${TMP}/wheel/ ${PKG}
-auditwheel repair --wheel-dir=${TARGET} ${TMP}/wheel/*
+pip wheel -vvv --wheel-dir ${TMP} ${PKG}
+for f in ${TMP}/*linux*.whl; do
+	auditwheel repair --wheel-dir=${TARGET} ${f}
+done
