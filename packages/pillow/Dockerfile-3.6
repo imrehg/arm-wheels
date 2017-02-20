@@ -14,4 +14,6 @@ RUN apt-get update && \
       tk-dev \
       python3-tk
 
-ENTRYPOINT ["pip", "wheel", "-vvv", "--wheel-dir=/usr/src/target"]
+COPY payload.sh ./
+
+ENTRYPOINT ["bash", "payload.sh"]
