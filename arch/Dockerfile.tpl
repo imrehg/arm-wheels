@@ -1,5 +1,11 @@
 FROM #{FROM}
 
+# install extra dependencies for wheel building
+RUN apt-get update && \
+	apt-get install -yq --no-install-recommends \
+		unzip \
+	&& apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # remove several traces of debian python
 RUN apt-get purge -y python.*
 
@@ -20,10 +26,14 @@ ENV PYTHON_PIP_VERSION 9.0.1
 ENV PYTHON_PIP_SHA256 d03fabbc4fbf2fbfc2f97307960aef2b3ca4c880ecda993dcc35957e33d7cd76
 
 ENV PYTHON_WHEEL_VERSION 0.29.0
-ENV PYTHON_WHEEL_SHA256 1748d93291f3546609826bad5bcff938fca818d9280d64465924ec1d8f5e2bd4
 
-ENV SETUPTOOLS_SHA256 197b0c1e69a29c3a9eab446ef0a1884890da0c9784b8f556d0c64071819991d6
+ENV PYTHON_AUDITWHEEL_VERSION 1.5
+
 ENV SETUPTOOLS_VERSION 28.6.1
+ENV SETUPTOOLS_SHA256 197b0c1e69a29c3a9eab446ef0a1884890da0c9784b8f556d0c64071819991d6
+
+ENV PATCHELF_VERSION 0.9
+ENV PATCHELF_SHA256 cf0693e794229e19edcf2299427b5a352e0f4d4f06f9d3856e30ddb0344d5ce8
 
 RUN set -x \
 	&& curl -SLO "#{BINARY_URL}" \
@@ -49,20 +59,25 @@ RUN set -x \
 	&& cd /usr/src/python/pip \
 	&& python2 setup.py install \
 	&& cd .. \
-	&& mkdir -p /usr/src/python/wheel \
-	&& curl -SL "https://bitbucket.org/pypa/wheel/get/$PYTHON_WHEEL_VERSION.tar.gz" -o wheel.tar.gz \
-	&& echo "$PYTHON_WHEEL_SHA256  wheel.tar.gz" > wheel.tar.gz.sha256sum \
-	&& sha256sum -c wheel.tar.gz.sha256sum \
-	&& tar -xzC /usr/src/python/wheel --strip-components=1 -f wheel.tar.gz \
-	&& rm wheel.tar.gz* \
-	&& cd /usr/src/python/wheel \
-	&& python2 setup.py install \
-	&& cd .. \
+	&& pip install wheel==${PYTHON_WHEEL_VERSION} \
+	&& pip install auditwheel==${PYTHON_AUDITWHEEL_VERSION} \
 	&& find /usr/local \
 		\( -type d -a -name test -o -name tests \) \
 		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
 		-exec rm -rf '{}' + \
+	&& cd /usr/src \
+	&& mkdir -p /usr/src/patchelf \
+	&& curl -SL "https://github.com/NixOS/patchelf/archive/$PATCHELF_VERSION.tar.gz" -o patchelf.tar.gz \
+	&& echo "$PATCHELF_SHA256  patchelf.tar.gz" > patchelf.tar.gz.sha256sum \
+	&& sha256sum -c patchelf.tar.gz.sha256sum \
+	&& tar -xzC /usr/src/patchelf --strip-components=1 -f patchelf.tar.gz \
+	&& rm patchelf.tar.gz* \
+	&& cd /usr/src/patchelf \
+	&& autoreconf -fiv \
+	&& ./configure --prefix=/usr \
+	&& make \
+	&& make install \
 	&& cd / \
-	&& rm -rf /usr/src/python ~/.cache
+	&& rm -rf /usr/src/python /usr/src/patchelf ~/.cache
 
 CMD ["echo","'No CMD command was set in Dockerfile! Details about CMD command could be found in Dockerfile Guide section in our Docs. Here's the link: http://docs.resin.io/deployment/dockerfile"]
