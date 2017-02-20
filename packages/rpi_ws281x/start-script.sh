@@ -1,15 +1,23 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-  TARGET=master
+	VERSION=master
 else
-  TARGET=$1
+	VERSION=$1
 fi
-echo "Building ${TARGET}"
+echo "Building ${VERSION}"
+
+TARGET=/usr/src/target
+TMP=/tmp
+
+
 
 git clone https://github.com/pimoroni/rpi_ws281x-python.git
 cd rpi_ws281x-python
-git checkout -b build ${TARGET}
+git checkout -b build ${VERSION}
 git submodule update --init --recursive
 cd library
-pip wheel -vvv --wheel-dir=/usr/src/target .
+pip wheel -vvv --wheel-dir ${TMP} .
+for f in ${TMP}/*linux*.whl; do
+	auditwheel repair --wheel-dir=${TARGET} ${f}
+done
