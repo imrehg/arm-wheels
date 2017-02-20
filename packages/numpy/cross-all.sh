@@ -1,4 +1,4 @@
-pythons="2.7 3.4 3.5 3.6"
+pythons="3.4 3.5 3.6"
 for python in $pythons; do
  docker run \
   --rm \
